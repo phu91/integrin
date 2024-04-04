@@ -19,12 +19,12 @@ ifile =  args.input
 
 data = pd.read_csv(ifile,comment='#',
                    delim_whitespace=True,
-                   names=['resid','resname','chain','bfactor','rmsf'])
-# print(data)
-chain_list=['A','B','I']
-yrange_list =[[0.5,6.5],[0,5],[0,6]]
-chain_name_list=['LTGFb1 Dimer 1','LTGFb1 Dimer 2','GARP']
-fig,axes = plt.subplots(3,1)
+                   names=['resname','resid','chain','bfactor','rmsf'])
+print(data)
+chain_list=['A','B','E','F','I']
+yrange_list =[[0.5,6.5],[0,5],[0,6],[0,6],[0,6]]
+chain_name_list=['ITGAV','ITGB8','LTGFb1 Dimer 1','LTGFb1 Dimer 2','GARP']
+fig,axes = plt.subplots(5,1)
 
 for ind,ax in enumerate(axes):
     # print(chain_list[ind])

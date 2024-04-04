@@ -47,6 +47,9 @@ parser.add_argument('--top', type=str,
 parser.add_argument('--traj', type=str,
                     help='A required topology (XTC, DCD, etc.) file')
 
+parser.add_argument('--cryo', type=str,
+                    help='A required topology (XTC, DCD, etc.) file')
+                    
 parser.add_argument('--begin', type=int, default=1,
                     help='Starting Frame. Default = 1 FRAME 1')
 
@@ -68,6 +71,7 @@ traj_file = args.traj
 traj_skip = args.skip
 traj_begin = args.begin
 traj_end = args.end
+cryo_pdb = args.cryo
 systemname = args.system
 
 u = mda.Universe(top_file,traj_file,in_memory=True)
@@ -113,33 +117,29 @@ else:
     print("########################################################\n")
     pass
 
-with open("RMSF_%s.dat"%(systemname),"w+") as rmsf_out:
-    for ind, (chain) in enumerate(chain_str):
-        # print(ind,chain)
-        rmsf_out.write("#chain resname resid rmsf sysname\n")
-        RMSF = rmsf_calculation(chain,traj_skip)
-        
-        # print()
-        # print(len(RMSF.results.rmsf))
-        # print(len(ref_list[ind].residues))
-        for RES,rmsf in tqdm(zip(ref_list[ind].residues,RMSF.results.rmsf),total=len(ref_list[ind].residues),desc=chain):
-            print(RES.resid,chain_name_list[ind],rmsf)
-            # if ind ==0:
-                # print("A",RES.resid)
-                # rmsf_out.write("%s\t%s\t%s\t%s\t%s\n"%(chain_list[ind],RES.resname,RES.resid,rmsf,systemname))
-                # rmsf_out.flush()
-                # RES.atoms.tempfactors = rmsf
-                # RES.chain==chain_name_list[ind]
-                # ref.atoms.write('rmsf_tempfactors_%s_%s.pdb'%(chain_list[ind],systemname))
-#             if ind ==1:
-#                 # print("B",RES.resid)
-#                 rmsf_out.write("%s\t%s\t%s\t%s\t%s\n"%(chain_list[ind],RES.resname,RES.resid,rmsf,systemname))
-#                 rmsf_out.flush()
-#                 RES.atoms.tempfactors = rmsf
-#                 ref.atoms.write('rmsf_tempfactors_%s_%s.pdb'%(chain_list[ind],systemname))
-#             if ind ==2:
-#                 # print("I",RES.resid)
-#                 rmsf_out.write("%s\t%s\t%s\t%s\t%s\n"%(chain_list[ind],RES.resname,RES.resid,rmsf,systemname))
-#                 rmsf_out.flush()
-#                 RES.atoms.tempfactors = rmsf
-#                 ref.atoms.write('rmsf_tempfactors_%s_%s.pdb'%(chain_list[ind],systemname))
+# with open("RMSF_%s.dat"%(systemname),"w+") as rmsf_out:
+#     for ind, (chain) in enumerate(chain_str):
+#         # print(ind,chain)
+#         rmsf_out.write("#resname resid rmsf sysname\n")
+#         RMSF = rmsf_calculation(chain,traj_skip)
+#         # print()
+#         # print(len(RMSF.results.rmsf))
+#         # print(len(ref_list[ind].residues))
+#         for RES,rmsf in tqdm(zip(ref_list[ind].residues,RMSF.results.rmsf),total=len(ref_list[ind].residues),desc=chain):
+#             rmsf_out.write("%s\t%s\t%s\t%s\t%s\n"%(RES.resname,RES.resid,chain_name_list[ind],np.around(rmsf,3),systemname))
+
+data_sim = pd.read_csv("RMSF_%s.dat"%(systemname),
+                        comment='#',
+                        names=['resname','resid','chain','rmsf','system'],
+                        delim_whitespace=True)
+
+# print(data_sim)
+data_cryo = mda.Universe(cryo_pdb,cryo_pdb)
+cryo_CA = data_cryo.select_atoms("name CA")
+
+with open("RMSF_vs_BFACTOR_%s.dat"%(systemname),"w+") as bfactor_out:
+    bfactor_out.write("#resname resid chain bfactor rmsf\n")
+    for resName,resID,chain,bfactor in zip(cryo_CA.resnames,cryo_CA.resids,cryo_CA.segids,cryo_CA.tempfactors):
+        rmsf_sim = data_sim.query("chain=='%s' & resid==%s"%(chain,resID)).rmsf.values
+        if len(rmsf_sim)!=0:
+            bfactor_out.write("%s\t%s\t%s\t%s\t%s\n"%(resName,resID,chain,np.round(bfactor,3),*rmsf_sim))
