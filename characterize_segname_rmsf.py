@@ -117,16 +117,16 @@ else:
     print("########################################################\n")
     pass
 
-# with open("RMSF_%s.dat"%(systemname),"w+") as rmsf_out:
-#     for ind, (chain) in enumerate(chain_str):
-#         # print(ind,chain)
-#         rmsf_out.write("#resname resid rmsf sysname\n")
-#         RMSF = rmsf_calculation(chain,traj_skip)
-#         # print()
-#         # print(len(RMSF.results.rmsf))
-#         # print(len(ref_list[ind].residues))
-#         for RES,rmsf in tqdm(zip(ref_list[ind].residues,RMSF.results.rmsf),total=len(ref_list[ind].residues),desc=chain):
-#             rmsf_out.write("%s\t%s\t%s\t%s\t%s\n"%(RES.resname,RES.resid,chain_name_list[ind],np.around(rmsf,3),systemname))
+with open("RMSF_%s.dat"%(systemname),"w+") as rmsf_out:
+    for ind, (chain) in enumerate(chain_str):
+        # print(ind,chain)
+        rmsf_out.write("#resname resid rmsf sysname\n")
+        RMSF = rmsf_calculation(chain,traj_skip)
+        # print()
+        # print(len(RMSF.results.rmsf))
+        # print(len(ref_list[ind].residues))
+        for RES,rmsf in tqdm(zip(ref_list[ind].residues,RMSF.results.rmsf),total=len(ref_list[ind].residues),desc=chain):
+            rmsf_out.write("%s\t%s\t%s\t%s\t%s\n"%(RES.resname,RES.resid,chain_name_list[ind],np.around(rmsf,3),systemname))
 
 data_sim = pd.read_csv("RMSF_%s.dat"%(systemname),
                         comment='#',
