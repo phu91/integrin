@@ -1,3 +1,5 @@
-full_integrin/STRUCTURE/FULL_input.pdb
-full_integrin/STRUCTURE/FULL_input.psf
-full_integrin/TEST/TEST.*
+STRUCTURE/*
+*.pdb
+*.psf
+*.xtc
+*.dcd
