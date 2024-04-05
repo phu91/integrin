@@ -13,18 +13,28 @@ parser = argparse.ArgumentParser(description='Optional app description')
 parser.add_argument('--input', type=str, default='',
                     help='INPUT to RMSF profile')
 
+parser.add_argument('--part', type=str, default='yes',
+                    help='select "full" for FULL COMPLEX and "yes" for SMALL COMPLEX. Default: "yes"')
+
 args = parser.parse_args()
 
 ifile =  args.input
+part = args.part
 
 data = pd.read_csv(ifile,comment='#',
                    delim_whitespace=True,
                    names=['resid','resname','chain','bfactor','rmsf'])
 # print(data)
-chain_list=['A','B','I']
-yrange_list =[[0.5,6.5],[0,5],[0,6]]
-chain_name_list=['LTGFb1 Dimer 1','LTGFb1 Dimer 2','GARP']
-fig,axes = plt.subplots(3,1)
+if part=='full':
+    chain_list=['A','B','E','F','I']
+    yrange_list =[[0.5,6.5],[0,5],[0,6],[0,6],[0,6]]
+    chain_name_list=['ITGAV','ITGB8','LTGFb1 Dimer 1','LTGFb1 Dimer 2','GARP']
+    fig,axes = plt.subplots(5,1)
+else:
+    chain_list=['A','B','I']
+    yrange_list =[[0.5,6.5],[0,5],[0,6]]
+    chain_name_list=['LTGFb1 Dimer 1','LTGFb1 Dimer 2','GARP']
+    fig,axes = plt.subplots(3,1)
 
 for ind,ax in enumerate(axes):
     # print(chain_list[ind])
