@@ -62,7 +62,8 @@ parser.add_argument('--skip', type=int, default=1,
 parser.add_argument('--system', type=str, default='UNKNOWN',
                     help='Add a system name to output file')
 
-
+parser.add_argument('--part', type=str, default='yes',
+                    help='select "full" for FULL COMPLEX and "yes" for SMALL COMPLEX. Default: "yes"')
 args = parser.parse_args()
 
 
@@ -73,29 +74,45 @@ traj_begin = args.begin
 traj_end = args.end
 cryo_pdb = args.cryo
 systemname = args.system
+part = args.part
 
 u = mda.Universe(top_file,traj_file,in_memory=True)
 u.add_TopologyAttr('tempfactors') # add empty attribute for all atoms
 n_atom_origin = len(u.atoms)
 
+if part=='full':
 ## selected strings
-chainA = 'protein and segid PROA and name CA'
-chainB = 'protein and segid PROB and name CA'
-chainE = 'protein and segid PROE and name CA'
-chainF = 'protein and segid PROF and name CA'
-chainI = 'protein and segid PROI and name CA'
+    chainA = 'protein and segid PROA and name CA'
+    chainB = 'protein and segid PROB and name CA'
+    chainE = 'protein and segid PROE and name CA'
+    chainF = 'protein and segid PROF and name CA'
+    chainI = 'protein and segid PROI and name CA'
+    
+    ## REFERENCE FRAME 0
+    chainA_frame_0 = u.select_atoms('protein and segid PROA and name CA')
+    chainB_frame_0 = u.select_atoms('protein and segid PROB and name CA')
+    chainE_frame_0 = u.select_atoms('protein and segid PROE and name CA')
+    chainF_frame_0 = u.select_atoms('protein and segid PROF and name CA')
+    chainI_frame_0 = u.select_atoms('protein and segid PROI and name CA')
+    # print(chainA.residues)
+    ref_list = [chainA_frame_0,chainB_frame_0,chainE_frame_0,chainF_frame_0,chainI_frame_0]
+    chain_str = [chainA,chainB,chainE,chainF,chainI]
+    chain_list = ['ITGAV','ITGB8','LTGFb1A','LTGFb1B','GARP']
+    chain_name_list = ['A','B','E','F','I']
 
-## REFERENCE FRAME 0
-chainA_frame_0 = u.select_atoms('protein and segid PROA and name CA')
-chainB_frame_0 = u.select_atoms('protein and segid PROB and name CA')
-chainE_frame_0 = u.select_atoms('protein and segid PROE and name CA')
-chainF_frame_0 = u.select_atoms('protein and segid PROF and name CA')
-chainI_frame_0 = u.select_atoms('protein and segid PROI and name CA')
-# print(chainA.residues)
-ref_list = [chainA_frame_0,chainB_frame_0,chainE_frame_0,chainF_frame_0,chainI_frame_0]
-chain_str = [chainA,chainB,chainE,chainF,chainI]
-chain_list = ['ITGAV','ITGB8','LTGFb1A','LTGFb1B','GARP']
-chain_name_list = ['A','B','E','F','I']
+else:
+    chainA = 'protein and segid PROA and name CA'
+    chainB = 'protein and segid PROB and name CA'
+    chainI = 'protein and segid PROI and name CA'
+    ## REFERENCE FRAME 0
+    chainA_frame_0 = u.select_atoms('protein and segid PROA and name CA')
+    chainB_frame_0 = u.select_atoms('protein and segid PROB and name CA')
+    chainI_frame_0 = u.select_atoms('protein and segid PROI and name CA')
+    # print(chainA.residues)
+    ref_list = [chainA_frame_0,chainB_frame_0,chainI_frame_0]
+    chain_str = [chainA,chainB,chainI]
+    chain_list = ['LTGFb1A','LTGFb1B','GARP']
+    chain_name_list = ['A','B','I']
 
 if traj_end != -1:
     extract_frames(traj_begin,traj_end)
