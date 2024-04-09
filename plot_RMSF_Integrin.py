@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns 
-import argparse
+import argparse,os
 from matplotlib import rc
 from statannot import add_stat_annotation
 import MDAnalysis as mda 
@@ -138,5 +138,5 @@ plt.gcf().set_size_inches(7.5,8.5)   ## Wide x Height
 plt.tight_layout()
 plt.savefig("%s.png"%(ifile[:-4]),dpi=700)
 plt.savefig("%s.eps"%(ifile[:-4]),dpi=700)
-
+os.remove("template_ca_only.pdb")
 plt.show()
