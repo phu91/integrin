@@ -155,14 +155,15 @@ data_cryo = mda.Universe(cryo_pdb,cryo_pdb)
 cryo_CA = data_cryo.select_atoms("name CA")
 
 with open("RMSF_vs_BFACTOR_%s.dat"%(systemname),"w+") as bfactor_out:
+    bfactor_out.write("#GARP was modeled based on 6GFF model. Thus, its numbering is different.""resID_sim = resID_cryo-19"" is added to fix this.\n")
     bfactor_out.write("#resname resid chain bfactor rmsf system\n")
-    for resName,resID,chain,bfactor in zip(cryo_CA.resnames,cryo_CA.resids,cryo_CA.segids,cryo_CA.tempfactors):
-        if chain!='I':
-            offset=0
+    for resName,resID_cryo,chain,bfactor in zip(cryo_CA.resnames,cryo_CA.resids,cryo_CA.segids,cryo_CA.tempfactors):
+        if chain=='I':
+            resID_sim = resID_cryo-19     ### Offset residue numbering
         else:
-            offset=19
-        rmsf_sim = data_sim.query("chain=='%s' & resid==%s"%(chain,resID+offset)).rmsf.values
+            resID_sim=resID_cryo
+        rmsf_sim = data_sim.query("chain=='%s' & resid==%s"%(chain,resID_sim)).rmsf.values
         if len(rmsf_sim)!=0:
-            bfactor_out.write("%s\t%s\t%s\t%s\t%s\t%s\n"%(resName,resID,chain,np.round(bfactor,3),*rmsf_sim,systemname))
+            bfactor_out.write("%s\t%s\t%s\t%s\t%s\t%s\n"%(resName,resID_sim,chain,np.round(bfactor,3),*rmsf_sim,systemname))
 
 os.remove("RMSF_%s.dat"%(systemname))
