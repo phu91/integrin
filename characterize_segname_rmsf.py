@@ -155,8 +155,12 @@ data_cryo = mda.Universe(cryo_pdb,cryo_pdb)
 cryo_CA = data_cryo.select_atoms("name CA")
 
 with open("RMSF_vs_BFACTOR_%s.dat"%(systemname),"w+") as bfactor_out:
-    bfactor_out.write("#resname resid chain bfactor rmsf\n")
+    bfactor_out.write("#resname resid chain bfactor rmsf system\n")
     for resName,resID,chain,bfactor in zip(cryo_CA.resnames,cryo_CA.resids,cryo_CA.segids,cryo_CA.tempfactors):
-        rmsf_sim = data_sim.query("chain=='%s' & resid==%s"%(chain,resID)).rmsf.values
+        if chain!='I':
+            offset=0
+        else:
+            offset=19
+        rmsf_sim = data_sim.query("chain=='%s' & resid==%s"%(chain,resID+offset)).rmsf.values
         if len(rmsf_sim)!=0:
-            bfactor_out.write("%s\t%s\t%s\t%s\t%s\n"%(resName,resID,chain,np.round(bfactor,3),*rmsf_sim))
+            bfactor_out.write("%s\t%s\t%s\t%s\t%s\t%s\n"%(resName,resID,chain,np.round(bfactor,3),*rmsf_sim,systemname))

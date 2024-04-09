@@ -44,8 +44,11 @@ def generate_PDB_with_new_RMSF(selectedPDB_RMSF):
             if CHAIN=='I':
                 SEGNAME='PROI'
             # print(RESID,RESNAME,SEGNAME)
-            u = template_pdb_ca.select_atoms("resname %s and resid %s and segid %s"%(RESNAME,RESID,SEGNAME))
-            u.tempfactors=RMSF
+                u = template_pdb_ca.select_atoms("resname %s and resid %s and segid %s"%(RESNAME,RESID,SEGNAME))
+                print(u.resids, u.resnames,u.segids,u.tempfactors)
+                u.tempfactors=RMSF
+                print(u.resids, u.resnames,u.segids,u.tempfactors)
+
         all.write("RMSF_pdbFile_%s.pdb"%(systemName))
         print("\n===> RMSF_pdbFile_%s.pdb is generated"%(systemName))
     else:
