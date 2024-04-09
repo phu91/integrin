@@ -2,7 +2,7 @@
 import MDAnalysis as mda
 import pandas as pd
 import numpy as np
-import math, sys
+import math, sys, os
 import argparse
 from MDAnalysis.analysis.rdf import InterRDF
 from MDAnalysis.coordinates.memory import MemoryReader
@@ -164,3 +164,5 @@ with open("RMSF_vs_BFACTOR_%s.dat"%(systemname),"w+") as bfactor_out:
         rmsf_sim = data_sim.query("chain=='%s' & resid==%s"%(chain,resID+offset)).rmsf.values
         if len(rmsf_sim)!=0:
             bfactor_out.write("%s\t%s\t%s\t%s\t%s\t%s\n"%(resName,resID,chain,np.round(bfactor,3),*rmsf_sim,systemname))
+
+os.remove("RMSF_%s.dat"%(systemname))
