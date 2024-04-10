@@ -170,4 +170,4 @@ with open("RMSF_vs_BFACTOR_%s.dat"%(systemname),"w+") as bfactor_out:
         if len(rmsf_sim)!=0:
             bfactor_out.write("%s\t%s\t%s\t%s\t%s\t%s\n"%(resName,resID_cryo,chain,np.round(bfactor,3),*rmsf_sim,systemname))
             bfactor_out.flush()
-os.remove("RMSF_%s.dat"%(systemname))
+# os.remove("RMSF_%s.tmp"%(systemname))

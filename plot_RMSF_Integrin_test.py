@@ -16,6 +16,7 @@ parser.add_argument('--input', type=str, default='',
 parser.add_argument('--part', type=str, default='yes',
                     help='select "full" for FULL COMPLEX and "yes" for SMALL COMPLEX. Default: "yes"')
 
+
 args = parser.parse_args()
 
 ifile =  args.input
@@ -44,11 +45,11 @@ for ind,ax in enumerate(axes):
     ax1.set_ylabel("RMSF",color='tab:blue')
     ax1.set_ylim(yrange_list[ind][0],yrange_list[ind][1])
     
-    # ax2 = ax1.twinx()
-    # # ax2.set_ylim([0,130])
-    # ax2.set_ylabel("B-Factor",color='tab:red')
-    # data.query("chain=='%s'"%(chain_list[ind])).plot(x="resid", y="bfactor", ax=ax2, legend=False, color="tab:red")
-# ax1.figure.legend()
+    ax2 = ax1.twinx()
+    # ax2.set_ylim([0,130])
+    ax2.set_ylabel("B-Factor",color='tab:red')
+    data.query("chain=='%s'"%(chain_list[ind])).plot(x="resid", y="bfactor", ax=ax2, legend=False, color="tab:red")
+ax1.figure.legend()
 
 # ### MISCELLANEOUS ###
 plt.suptitle("%s"%(ifile[:-4]),va='top')

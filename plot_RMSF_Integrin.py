@@ -33,23 +33,25 @@ def generate_PDB_with_new_RMSF(selectedPDB_RMSF):
         select_template.tempfactors=0
         select_template.write("template_ca_only.pdb")
         template_pdb_ca = mda.Universe("template_ca_only.pdb","template_ca_only.pdb")
-        all = template_pdb_ca.select_atoms("all")
+        all = template_pdb_ca.select_atoms("resid 1:585")
+        # print(all)
         for ind, (RESID,RESNAME,CHAIN,RMSF) in enumerate(zip(data.resid,data.resname,data.chain,data.rmsf)):
-            SEGNAME='X'
+            # SEGNAME='X'
             # print(CHAIN)
-            if CHAIN=='A':
-                SEGNAME='PROA'
-            if CHAIN=='B':
-                SEGNAME='PROB'
-            if CHAIN=='I':
-                SEGNAME='PROI'
+            # if CHAIN=='A':
+            #     SEGNAME='PROA'
+            # if CHAIN=='B':
+            #     SEGNAME='PROB'
+            # if CHAIN=='I':
+            #     SEGNAME='PROI'
             # print(RESID,RESNAME,SEGNAME)
-            u = template_pdb_ca.select_atoms("resname %s and resid %s and segid %s"%(RESNAME,RESID,SEGNAME))
+            u = template_pdb_ca.select_atoms("resname %s and resid %s and segid %s"%(RESNAME,RESID,CHAIN))
+            # print(u)
             u.tempfactors=RMSF
             # print(u.tempfactors)
 
-        all.write("RMSF_template_%s.pdb"%(systemName))
-        print("\n===> RMSF_template_%s.pdb is generated"%(systemName))
+        all.write("RMSF_model_%s.pdb"%(systemName))
+        print("\n===> RMSF_model_%s.pdb is generated"%(systemName))
     else:
         print("\n===> No PDB with new RMSF generate!")
 
@@ -59,8 +61,8 @@ parser = argparse.ArgumentParser(description='Optional app description')
 parser.add_argument('--input', type=str, default='',
                     help='INPUT to RMSF profile')
 
-parser.add_argument('--template', type=str, default='',
-                    help='PDB (from simulation) input to output RMSF.')
+parser.add_argument('--cryo', type=str, default='',
+                    help='cryoEM PDB as template.')
 
 parser.add_argument('--part', type=str, default='yes',
                     help='select "full" for FULL COMPLEX and "yes" for SMALL COMPLEX. Default: "yes"')
@@ -77,7 +79,7 @@ args = parser.parse_args()
 
 ifile =  args.input
 part = args.part
-template=args.template
+template=args.cryo
 systemName=args.system
 nrep=args.nrep
 pdbout=args.pdbout
@@ -87,7 +89,7 @@ data = pd.read_csv(ifile,comment='#',
                 names=['resname','resid','chain','bfactor','rmsf','system']
                 )
                 #resname resid chain bfactor rmsf system
-# print(data)
+print(data)
 # print(data.iloc[:1114]) REP1
 # print(data.iloc[1114:]) REP2
 chain_list,yrange_list,y2range_list,chain_name_list,fig,axes=inputPart(part)
@@ -138,5 +140,5 @@ plt.gcf().set_size_inches(7.5,8.5)   ## Wide x Height
 plt.tight_layout()
 plt.savefig("%s.png"%(ifile[:-4]),dpi=700)
 plt.savefig("%s.eps"%(ifile[:-4]),dpi=700)
-os.remove("template_ca_only.pdb")
+# os.remove("template_ca_only.pdb")
 plt.show()
