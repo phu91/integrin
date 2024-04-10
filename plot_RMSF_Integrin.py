@@ -21,7 +21,7 @@ def inputPart(whichPart):
         chain_list=['A','B','I']
         # xrange_list = [[1,361],[1,361],[1,567]]
         yrange_list =[[0,6],[0,4.5],[0,6]]
-        y2range_list =[[0,130],[0,120],[0,130]]
+        y2range_list =[[0,130],[0,120],[0,200]]
         chain_name_list=['LTGFb1 Dimer 1','LTGFb1 Dimer 2','GARP']
         fig,axes = plt.subplots(3,1)
     return chain_list,yrange_list,y2range_list,chain_name_list,fig,axes
@@ -44,7 +44,7 @@ def generate_PDB_with_new_RMSF(selectedPDB_RMSF):
             #     SEGNAME='PROB'
             # if CHAIN=='I':
             #     SEGNAME='PROI'
-            # print(RESID,RESNAME,SEGNAME)
+            print(RESID,RESNAME,CHAIN)
             u = template_pdb_ca.select_atoms("resname %s and resid %s and segid %s"%(RESNAME,RESID,CHAIN))
             # print(u)
             u.tempfactors=RMSF
@@ -54,7 +54,6 @@ def generate_PDB_with_new_RMSF(selectedPDB_RMSF):
         print("\n===> RMSF_model_%s.pdb is generated"%(systemName))
     else:
         print("\n===> No PDB with new RMSF generate!")
-
 
 parser = argparse.ArgumentParser(description='Optional app description')
 
@@ -88,8 +87,13 @@ data = pd.read_csv(ifile,comment='#',
                 delim_whitespace=True,
                 names=['resname','resid','chain','bfactor','rmsf','system']
                 )
+# print(data.query("chain=='I'")['rmsf'])
+
+# define a function to apply to the salary column
+# apply the function to the salary column using apply()
+
                 #resname resid chain bfactor rmsf system
-print(data)
+# print(data)
 # print(data.iloc[:1114]) REP1
 # print(data.iloc[1114:]) REP2
 chain_list,yrange_list,y2range_list,chain_name_list,fig,axes=inputPart(part)
@@ -113,6 +117,7 @@ for ind,ax in enumerate(axes):
                     marker='o',
                     ax=ax
                     )
+
     ax1.set_title("%s"%(chain_name_list[ind]),fontweight='bold')
     ax1.set_ylabel("RMSF",color='tab:blue',fontweight='bold')
     ax1.set_ylim(yrange_list[ind][0],yrange_list[ind][1])
