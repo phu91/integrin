@@ -48,7 +48,7 @@ parser.add_argument('--traj', type=str,
                     help='A required topology (XTC, DCD, etc.) file')
 
 parser.add_argument('--cryo', type=str,
-                    help='A required topology (XTC, DCD, etc.) file')
+                    help='CryoEM PDB')
                     
 parser.add_argument('--begin', type=int, default=1,
                     help='Starting Frame. Default = 1 FRAME 1')
@@ -154,6 +154,9 @@ data_sim = pd.read_csv("RMSF_%s.dat"%(systemname),
 data_cryo = mda.Universe(cryo_pdb,cryo_pdb)
 cryo_CA = data_cryo.select_atoms("name CA")
 
+# for i,j in zip(cryo_CA.resnames,cryo_CA.resids):
+    # print(i,j)
+
 with open("RMSF_vs_BFACTOR_%s.dat"%(systemname),"w+") as bfactor_out:
     bfactor_out.write("#GARP was modeled based on 6GFF model. Thus, its numbering is different.""resID_sim = resID_cryo-19"" is added to fix this.\n")
     bfactor_out.write("#resname resid chain bfactor rmsf system\n")
@@ -162,8 +165,9 @@ with open("RMSF_vs_BFACTOR_%s.dat"%(systemname),"w+") as bfactor_out:
             resID_sim = resID_cryo-19     ### Offset residue numbering
         else:
             resID_sim=resID_cryo
-        rmsf_sim = data_sim.query("chain=='%s' & resid==%s"%(chain,resID_sim)).rmsf.values
+        # print(chain,resID_sim)
+        rmsf_sim = data_sim.query("chain=='%s' & resid==%s & resname=='%s'"%(chain,resID_sim,resName)).rmsf.values
         if len(rmsf_sim)!=0:
             bfactor_out.write("%s\t%s\t%s\t%s\t%s\t%s\n"%(resName,resID_cryo,chain,np.round(bfactor,3),*rmsf_sim,systemname))
-
+            bfactor_out.flush()
 os.remove("RMSF_%s.dat"%(systemname))
