@@ -135,6 +135,7 @@ else:
     pass
 
 with open("RMSF_%s.dat"%(systemname),"w+") as rmsf_out:
+    rmsf_out.write("THIS IS RESIDUES OF THE SIMULATION MODEL\n")
     for ind, (chain) in enumerate(chain_str):
         # print(ind,chain)
         rmsf_out.write("#resname resid rmsf sysname\n")
