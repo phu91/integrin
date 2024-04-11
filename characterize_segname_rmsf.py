@@ -143,6 +143,8 @@ with open("RMSF_%s.dat"%(systemname),"w+") as rmsf_out:
         # print(len(RMSF.results.rmsf))
         # print(len(ref_list[ind].residues))
         for RES,rmsf in tqdm(zip(ref_list[ind].residues,RMSF.results.rmsf),total=len(ref_list[ind].residues),desc=chain):
+            if RES.resname=='HSD':
+                RES.resname='HIS'
             rmsf_out.write("%s\t%s\t%s\t%s\t%s\n"%(RES.resname,RES.resid,chain_name_list[ind],np.around(rmsf,3),systemname))
 
 data_sim = pd.read_csv("RMSF_%s.dat"%(systemname),
@@ -154,8 +156,6 @@ data_sim = pd.read_csv("RMSF_%s.dat"%(systemname),
 data_cryo = mda.Universe(cryo_pdb,cryo_pdb)
 cryo_CA = data_cryo.select_atoms("name CA")
 
-# for i,j in zip(cryo_CA.resnames,cryo_CA.resids):
-    # print(i,j)
 
 with open("RMSF_vs_BFACTOR_%s.dat"%(systemname),"w+") as bfactor_out:
     bfactor_out.write("#GARP was modeled based on 6GFF model. Thus, its numbering is different.""resID_sim = resID_cryo-19"" is added to fix this.\n")
@@ -170,4 +170,3 @@ with open("RMSF_vs_BFACTOR_%s.dat"%(systemname),"w+") as bfactor_out:
         if len(rmsf_sim)!=0:
             bfactor_out.write("%s\t%s\t%s\t%s\t%s\t%s\n"%(resName,resID_cryo,chain,np.round(bfactor,3),*rmsf_sim,systemname))
             bfactor_out.flush()
-# os.remove("RMSF_%s.tmp"%(systemname))
