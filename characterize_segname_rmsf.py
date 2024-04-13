@@ -63,7 +63,7 @@ parser.add_argument('--system', type=str, default='UNKNOWN',
                     help='Add a system name to output file')
 
 parser.add_argument('--part', type=str, default='yes',
-                    help='select "full" for FULL COMPLEX and "yes" for SMALL COMPLEX. Default: "yes"')
+                    help='select "no" for FULL COMPLEX and "yes" for SMALL COMPLEX. Default: "yes"')
 args = parser.parse_args()
 
 
@@ -80,7 +80,7 @@ u = mda.Universe(top_file,traj_file,in_memory=True)
 u.add_TopologyAttr('tempfactors') # add empty attribute for all atoms
 n_atom_origin = len(u.atoms)
 
-if part=='full':
+if part!='yes':
 ## selected strings
     chainA = 'protein and segid PROA and name CA'
     chainB = 'protein and segid PROB and name CA'
@@ -88,17 +88,18 @@ if part=='full':
     chainF = 'protein and segid PROF and name CA'
     chainI = 'protein and segid PROI and name CA'
     
+    # print(chainI)
     ## REFERENCE FRAME 0
     chainA_frame_0 = u.select_atoms('protein and segid PROA and name CA')
     chainB_frame_0 = u.select_atoms('protein and segid PROB and name CA')
     chainE_frame_0 = u.select_atoms('protein and segid PROE and name CA')
     chainF_frame_0 = u.select_atoms('protein and segid PROF and name CA')
     chainI_frame_0 = u.select_atoms('protein and segid PROI and name CA')
-    # print(chainA.residues)
     ref_list = [chainA_frame_0,chainB_frame_0,chainE_frame_0,chainF_frame_0,chainI_frame_0]
     chain_str = [chainA,chainB,chainE,chainF,chainI]
     chain_list = ['ITGAV','ITGB8','LTGFb1A','LTGFb1B','GARP']
     chain_name_list = ['A','B','E','F','I']
+    offset=0
 
 else:
     chainA = 'protein and segid PROA and name CA'
@@ -108,11 +109,11 @@ else:
     chainA_frame_0 = u.select_atoms('protein and segid PROA and name CA')
     chainB_frame_0 = u.select_atoms('protein and segid PROB and name CA')
     chainI_frame_0 = u.select_atoms('protein and segid PROI and name CA')
-    # print(chainA.residues)
     ref_list = [chainA_frame_0,chainB_frame_0,chainI_frame_0]
     chain_str = [chainA,chainB,chainI]
     chain_list = ['LTGFb1A','LTGFb1B','GARP']
     chain_name_list = ['A','B','I']
+    offset=19
 
 if traj_end != -1:
     extract_frames(traj_begin,traj_end)
@@ -157,13 +158,17 @@ data_sim = pd.read_csv("RMSF_%s.dat"%(systemname),
 data_cryo = mda.Universe(cryo_pdb,cryo_pdb)
 cryo_CA = data_cryo.select_atoms("name CA")
 
+# print(data_cryo.residues)
 
 with open("RMSF_vs_BFACTOR_%s.dat"%(systemname),"w+") as bfactor_out:
-    bfactor_out.write("#GARP was modeled based on 6GFF model. Thus, its numbering is different.""resID_sim = resID_cryo-19"" is added to fix this.\n")
+    if part=='yes':
+        bfactor_out.write("#GARP was modeled based on 6GFF model. Thus, its numbering is different.""resID_sim = resID_cryo-19"" is added to fix this.\n")
+    else:
+        pass
     bfactor_out.write("#resname resid chain bfactor rmsf system\n")
     for resName,resID_cryo,chain,bfactor in zip(cryo_CA.resnames,cryo_CA.resids,cryo_CA.segids,cryo_CA.tempfactors):
         if chain=='I':
-            resID_sim = resID_cryo-19     ### Offset residue numbering
+            resID_sim = resID_cryo-offset     ### Offset residue numbering
         else:
             resID_sim=resID_cryo
         # print(chain,resID_sim)
