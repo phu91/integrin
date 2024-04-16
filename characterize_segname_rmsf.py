@@ -62,8 +62,9 @@ parser.add_argument('--skip', type=int, default=1,
 parser.add_argument('--system', type=str, default='UNKNOWN',
                     help='Add a system name to output file')
 
-parser.add_argument('--part', type=str, default='yes',
-                    help='select "no" for FULL COMPLEX and "yes" for SMALL COMPLEX. Default: "yes"')
+parser.add_argument('--complex', type=str, default='yes',
+                    help='select "full" for FULL COMPLEX and "yes" for SMALL COMPLEX. Default: "yes"')
+                    
 args = parser.parse_args()
 
 
@@ -74,13 +75,13 @@ traj_begin = args.begin
 traj_end = args.end
 cryo_pdb = args.cryo
 systemname = args.system
-part = args.part
+complex = args.complex
 
 u = mda.Universe(top_file,traj_file,in_memory=True)
 u.add_TopologyAttr('tempfactors') # add empty attribute for all atoms
 n_atom_origin = len(u.atoms)
 
-if part!='yes':
+if complex=='full':
 ## selected strings
     chainA = 'protein and segid PROA and name CA'
     chainB = 'protein and segid PROB and name CA'
@@ -125,6 +126,7 @@ if traj_end != -1:
     print("TRAJ: SEGMENT_FRAME_%s_TO_%s.xtc"%(traj_begin,traj_end))
     print("NUMBER OF ATOMS (ORIGINAL): %s"%(n_atom_origin))
     print("NUMBER OF ATOMS (CURRENT) : %s"%(len(u.atoms)))
+    print("CHAIN: %s"%(chain_name_list))
     print("########################################################\n")
 else:
     print("\n########################################################")
@@ -132,6 +134,7 @@ else:
     print("TRAJ: %s"%(traj_file))
     print("NUMBER OF ATOMS (ORIGINAL): %s"%(n_atom_origin))
     print("NUMBER OF ATOMS (CURRENT) : %s"%(len(u.atoms)))
+    print("CHAIN: %s"%(chain_name_list))
     print("########################################################\n")
     pass
 
@@ -161,11 +164,11 @@ cryo_CA = data_cryo.select_atoms("name CA")
 # print(data_cryo.residues)
 
 with open("RMSF_vs_BFACTOR_%s.dat"%(systemname),"w+") as bfactor_out:
-    if part=='yes':
+    if complex=='small':
         bfactor_out.write("#GARP was modeled based on 6GFF model. Thus, its numbering is different.""resID_sim = resID_cryo-19"" is added to fix this.\n")
+        bfactor_out.write("#resname resid chain bfactor rmsf system\n")
     else:
-        pass
-    bfactor_out.write("#resname resid chain bfactor rmsf system\n")
+        bfactor_out.write("#resname resid chain bfactor rmsf system\n")
     for resName,resID_cryo,chain,bfactor in zip(cryo_CA.resnames,cryo_CA.resids,cryo_CA.segids,cryo_CA.tempfactors):
         if chain=='I':
             resID_sim = resID_cryo-offset     ### Offset residue numbering

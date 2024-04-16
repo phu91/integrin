@@ -12,17 +12,19 @@ import MDAnalysis as mda
 def inputPart(whichPart):
     if whichPart=='full':
         chain_list=['A','B','E','F','I']
+        print("\n===> FULL COMPLEX is activated. CHAIN: %s\n"%(chain_list))
         # xrange_list = [[1,361],[1,361],[1,567]]
         yrange_list =[[0.5,6.5],[0,5],[0,6],[0,6],[0,6]]
         y2range_list =[[0,90],[0,120],[0,100],[0,100],[0,100]]
-        chain_name_list=['ITGAV','ITGB8','LTGFb1 Dimer 1','LTGFb1 Dimer 2','GARP']
+        chain_name_list=['ITGAV:A','ITGB8:B','LTGFb1:E','LTGFb1:F','GARP:I']
         fig,axes = plt.subplots(5,1)
     else:
         chain_list=['A','B','I']
+        print("\n===> SMALL COMPLEX is activated. CHAIN: %s\n"%(chain_list))
         # xrange_list = [[1,361],[1,361],[1,567]]
         yrange_list =[[0,6],[0,4.5],[0,6]]
         y2range_list =[[0,130],[0,120],[0,200]]
-        chain_name_list=['LTGFb1 Dimer 1','LTGFb1 Dimer 2','GARP']
+        chain_name_list=['LTGFb1:A','LTGFb1:B','GARP:I']
         fig,axes = plt.subplots(3,1)
     return chain_list,yrange_list,y2range_list,chain_name_list,fig,axes
 
@@ -44,7 +46,7 @@ def generate_PDB_with_new_RMSF(selectedPDB_RMSF):
             #     SEGNAME='PROB'
             # if CHAIN=='I':
             #     SEGNAME='PROI'
-            print(RESID,RESNAME,CHAIN)
+            # print(RESID,RESNAME,CHAIN)
             u = template_pdb_ca.select_atoms("resname %s and resid %s and segid %s"%(RESNAME,RESID,CHAIN))
             # print(u)
             u.tempfactors=RMSF
@@ -63,11 +65,11 @@ parser.add_argument('--input', type=str, default='',
 parser.add_argument('--cryo', type=str, default='',
                     help='cryoEM PDB as template.')
 
-parser.add_argument('--part', type=str, default='yes',
+parser.add_argument('--complex', type=str, default='yes',
                     help='select "full" for FULL COMPLEX and "yes" for SMALL COMPLEX. Default: "yes"')
 
-parser.add_argument('--nrep', type=int, default='1',
-                    help='Number of replicas in data. Default: 1')
+parser.add_argument('--avg', type=str, default='yes',
+                    help='Plot average. Default: YES')
 
 parser.add_argument('--system', type=str, default='UNKNOWN',
                     help='Output name')
@@ -77,10 +79,10 @@ parser.add_argument('--pdbout', type=str, default='no',
 args = parser.parse_args()
 
 ifile =  args.input
-part = args.part
+complex = args.complex
 template=args.cryo
 systemName=args.system
-nrep=args.nrep
+avg=args.avg
 pdbout=args.pdbout
 
 data = pd.read_csv(ifile,comment='#',
@@ -96,13 +98,13 @@ data = pd.read_csv(ifile,comment='#',
 # print(data)
 # print(data.iloc[:1114]) REP1
 # print(data.iloc[1114:]) REP2
-chain_list,yrange_list,y2range_list,chain_name_list,fig,axes=inputPart(part)
+chain_list,yrange_list,y2range_list,chain_name_list,fig,axes=inputPart(complex)
 generate_PDB_with_new_RMSF(pdbout)
 
 ### PLOT
 weight=20
 
-if nrep==1:
+if avg=='yes':
     hue=None
 else:
     hue='system'
